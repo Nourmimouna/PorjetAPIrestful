@@ -1,0 +1,87 @@
+#include <iostream>
+#include <string>
+#include <chrono>
+#include <thread>
+#include <curl/curl.h>
+
+// Class definition
+class Robot {
+public:
+    int id;
+    double x, y, theta, v, ultrasound;
+    std::string name;
+    double value;
+};
+
+// RESTful API details
+std::string apiEndpoint = "https://example.com/api/data";
+std::string apiKey = "your_api_key";
+int updateFrequencyInSeconds = 3;  // Update every 3 seconds
+
+// Callback function for cURL to write the response
+size_t writeCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+    size_t total_size = size * nmemb;
+    output->append((char*)contents, total_size);
+    return total_size;
+}
+
+// Function to send data to the RESTful API
+void sendDataToAPI(const Robot& robot) {
+    CURL* curl;
+    CURLcode res;
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+
+    if (curl) {
+        // Convert Robot data to JSON (you may need to adjust this based on your actual requirements)
+        std::string jsonPayload = "{\"id\":" + std::to_string(robot.id) +
+                                  ",\"x\":" + std::to_string(robot.x) +
+                                  ",\"y\":" + std::to_string(robot.y) +
+                                  ",\"theta\":" + std::to_string(robot.theta) +
+                                  ",\"v\":" + std::to_string(robot.v) +
+                                  ",\"ultrasound\":" + std::to_string(robot.ultrasound) +
+                                  ",\"name\":\"" + robot.name + "\"" +
+                                  ",\"value\":" + std::to_string(robot.value) + "}";
+
+        // Set cURL options
+        curl_easy_setopt(curl, CURLOPT_URL, apiEndpoint.c_str());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonPayload.c_str());
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_USERPWD, (apiKey + ":").c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+
+        // Perform the request
+        res = curl_easy_perform(curl);
+
+        // Check for errors
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
+
+        // Cleanup
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+    }
+}
+
+int main() {
+    // Create an instance of the Robot class
+    Robot myRobot;
+    myRobot.id = 1;
+    myRobot.x = 0.0;
+    myRobot.y = 0.0;
+    myRobot.theta = 0.0;
+    myRobot.v = 1.0;
+    myRobot.ultrasound = 2.0;
+    myRobot.name = "Robot1";
+    myRobot.value = 42.0;
+
+    // Periodically send data to the API
+    while (true) {
+        sendDataToAPI(myRobot);
+        std::this_thread::sleep_for(std::chrono::seconds(updateFrequencyInSeconds));
+    }
+
+    return 0;
+}

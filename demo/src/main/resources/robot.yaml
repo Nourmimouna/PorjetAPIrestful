@@ -1,0 +1,117 @@
+openapi: 3.0.3
+info:
+  title: Robot API
+  version: 1.0.0
+paths:
+  /robot:
+    get:
+      summary: Get all robots
+      responses:
+        '200':
+          description: A list of robots
+          content:
+            application/json:
+              example: [ ]
+    post:
+      summary: Create a new robot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Robot'
+      responses:
+        '201':
+          description: Robot created successfully
+          content:
+            application/json:
+              example:
+                id: 1
+                message: Robot created successfully
+  /robot/{id}:
+    get:
+      summary: Get a robot by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the robot
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The requested robot
+          content:
+            application/json:
+              example:
+                id: 1
+                name: Robot1
+                x: 0
+                'y': 0
+                theta: 0
+                v: 1
+                ultrasound: 2
+                value: 42
+        '404':
+          description: Robot not found
+    put:
+      summary: Update a robot by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the robot
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Robot'
+      responses:
+        '200':
+          description: Robot updated successfully
+          content:
+            application/json:
+              example:
+                id: 1
+                message: Robot updated successfully
+        '404':
+          description: Robot not found
+    delete:
+      summary: Delete a robot by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the robot
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Robot deleted successfully
+        '404':
+          description: Robot not found
+components:
+  schemas:
+    Robot:
+      type: object
+      properties:
+        id:
+          type: integer
+        x:
+          type: number
+          format: double
+        'y':
+          type: number
+          format: double
+        theta:
+          type: number
+          format: double
+        v:
+          type: number
+          format: double
+        ultrasound:
+          type: number
+          format: double

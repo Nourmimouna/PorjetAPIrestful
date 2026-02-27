@@ -1,0 +1,46 @@
+/*// Integration tests sources
+sourceSets {
+    integTest {
+        java.srcDir file('src/integTest/java')
+        resources.srcDir file('src/integTest/resources')
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+//inherit configuration from test
+configurations {
+    integTestCompileOnly.extendsFrom (testCompileOnly, complileOnly)
+    integTestImplementation.extendsFrom (testImplementation, implementation)
+
+    integTestRuntimeOnly.extendsFrom (testRuntimeOnly, runtimeOnly)
+}
+
+// Integration tests dependencies
+dependencies {
+    integTestImplementation sourceSets.main.output
+    integTestImplementation sourceSets.test.output
+}
+
+// integTest task with specific report & directories
+task integTest(type: Test) {
+	// Retrieve these infos in 'gradle tasks' output
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = 'Runs the integration tests.'
+
+    testClassesDirs = sourceSets.integTest.output.classesDirs
+    classpath = sourceSets.integTest.runtimeClasspath 
+
+    binResultsDir = file("$buildDir/integration-test-results/binary/integTest")
+
+    reports { 
+        html.destination file("$buildDir/reports/integration-test")
+        junitXml.destination file("$buildDir/integration-test-results")
+    }
+
+    mustRunAfter tasks.test
+
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+    }
+}*/
